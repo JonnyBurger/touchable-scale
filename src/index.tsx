@@ -31,7 +31,7 @@ export type TouchableScaleProps = Omit<
   onPress?: () => void;
 };
 
-export const TouchableScale: React.FC<TouchableScaleProps> = ({
+const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
   children,
   onPress,
@@ -88,3 +88,5 @@ export const TouchableScale: React.FC<TouchableScaleProps> = ({
     </TapGestureHandler>
   );
 };
+
+export default TouchableScale;
