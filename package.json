@@ -26,7 +26,6 @@
     "prepare": "bob build",
     "release": "dotenv release-it --",
     "example": "yarn --cwd example",
-    "postinstall": "npx npm-install-peers",
     "pods": "cd example && pod-install --quiet"
   },
   "keywords": [
