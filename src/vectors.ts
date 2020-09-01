@@ -1,6 +1,6 @@
 import type Animated from 'react-native-reanimated';
 
-interface Vector<
+export interface Vector<
   T extends Animated.Adaptable<number> = Animated.Adaptable<number>
 > {
   x: T;
