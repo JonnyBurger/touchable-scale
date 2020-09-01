@@ -31,6 +31,10 @@ export const MyComponent: React.FC = () => {
 
 The prop `activeScale` controls the scale while the button is pressed. The default is `0.95`.
 
+There are no event objects in the `onPress` callback. See below in the disadvantages section.
+
+You can use the exported `TouchableScaleProps` type to create typed higher order components.
+
 ## Advantages over TouchableOpacity
 
 - `<TouchableScale>` is a joyful, modern-looking, animated Touchable.
