@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-  GestureResponderEvent,
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
 } from 'react-native';
@@ -24,15 +23,28 @@ const AnimatedTouchableWithoutFeedback = Animated.createAnimatedComponent(
   TouchableWithoutFeedback
 );
 
-export const TouchableScale: React.FC<
-  Omit<TouchableWithoutFeedbackProps, 'onPress'> & {
-    onPress?: (event: GestureResponderEvent) => void;
-  }
-> = ({ style: propStyle, children, onPress, disabled, ...props }) => {
+export type TouchableScaleProps = Omit<
+  TouchableWithoutFeedbackProps,
+  'onPress'
+> & {
+  activeScale?: number;
+  onPress?: () => void;
+};
+
+export const TouchableScale: React.FC<TouchableScaleProps> = ({
+  style: propStyle,
+  children,
+  onPress,
+  disabled,
+  activeScale,
+  ...props
+}) => {
+  const effectiveActiveScale =
+    typeof activeScale !== 'undefined' ? activeScale : 0.95;
   const tapHandler = useTapGestureHandler();
   const scaleFactor = useMemo(
-    () => cond(eq(tapHandler.state, State.BEGAN), 0.05, 0),
-    [tapHandler.state]
+    () => cond(eq(tapHandler.state, State.BEGAN), 1 - effectiveActiveScale, 0),
+    [tapHandler.state, effectiveActiveScale]
   );
 
   const style = useMemo(() => {
@@ -52,11 +64,7 @@ export const TouchableScale: React.FC<
     () => [
       cond(
         and(eq(lastState, State.BEGAN), eq(State.END, tapHandler.state)),
-        call([], () =>
-          disabled
-            ? undefined
-            : onPress?.((null as unknown) as GestureResponderEvent)
-        )
+        call([], () => (disabled ? undefined : onPress?.()))
       ),
       set(lastState, tapHandler.state),
     ],
@@ -66,9 +74,11 @@ export const TouchableScale: React.FC<
   return (
     <TapGestureHandler
       {...tapHandler.gestureHandler}
-      maxDurationMs={10000000}
-      maxDeltaX={100}
-      maxDeltaY={100}
+      // Otherwise animation stops after short time on android
+      maxDurationMs={10000000000}
+      // Otherwise gesture is accepted on iOS even if touch up outside the element
+      maxDeltaX={40}
+      maxDeltaY={40}
     >
       <AnimatedTouchableWithoutFeedback {...props}>
         <Animated.View style={style} pointerEvents="box-only">
