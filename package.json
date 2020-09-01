@@ -144,6 +144,5 @@
   },
   "dependencies": {
     "react-native-redash": "^14.2.4"
-  },
-  "private": false
+  }
 }
