@@ -1,6 +1,9 @@
-# @jonny/touchable-scale
+<p align="center">
+  <strong>@jonny/touchable-scale</strong> <br/>
+  <img src="touchablescale-small.gif">
+</p>
 
-Button that animates scale when pressed
+React Native Button that animates it's scale when pressed
 
 ## Installation
 
@@ -11,11 +14,11 @@ npm install @jonny/touchable-scale
 ## Usage
 
 ```js
-import TouchableScale from "@jonny/touchable-scale";
+import TouchableScale from '@jonny/touchable-scale';
 
-// ...
-
-const result = await TouchableScale.multiply(3, 7);
+export const MyComponent: React.FC = () => {
+  return <TouchableScale onPress={() => {}}></TouchableScale>;
+};
 ```
 
 ## Contributing
