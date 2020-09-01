@@ -42,6 +42,10 @@ The prop `activeScale` controls the scale while the button is pressed. The defau
 
 - Additional dependency on Reanimated and Gesture Handler.
 
+## Credits
+
+Contains functions taken from [Redash](https://github.com/wcandillon/react-native-redash). Shoutout to William.
+
 ## License
 
 MIT
