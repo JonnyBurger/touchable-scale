@@ -140,8 +140,5 @@
       "module",
       "typescript"
     ]
-  },
-  "dependencies": {
-    "react-native-redash": "^14.2.4"
   }
 }

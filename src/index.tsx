@@ -13,11 +13,8 @@ import Animated, {
   sub,
   useCode,
 } from 'react-native-reanimated';
-import {
-  useTapGestureHandler,
-  useValue,
-  withSpringTransition,
-} from 'react-native-redash';
+import { withSpringTransition } from './withSpringTransition';
+import { useTapGestureHandler, useValue } from './useTapGestureHandler';
 
 const AnimatedTouchableWithoutFeedback = Animated.createAnimatedComponent(
   TouchableWithoutFeedback
