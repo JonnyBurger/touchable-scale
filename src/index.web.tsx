@@ -1,6 +1,8 @@
 import {
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
+  View,
+  StyleSheet,
 } from 'react-native';
 import React, { useState, useCallback, useMemo } from 'react';
 
@@ -29,23 +31,22 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
     setPressed(false);
   }, []);
   const style = useMemo(() => {
-    return [
+    return StyleSheet.compose(
       propStyle,
       disabled
         ? {}
         : {
             transform: [{ scale: pressed ? effectiveActiveScale : 1 }],
-          },
-    ];
+          }
+    );
   }, [disabled, effectiveActiveScale, pressed, propStyle]);
   return (
     <TouchableWithoutFeedback
       onPressIn={onPressIn}
       onPressOut={onPressOut}
-      style={style}
       {...props}
     >
-      {children}
+      <View style={style}>{children}</View>
     </TouchableWithoutFeedback>
   );
 };
