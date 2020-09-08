@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
@@ -29,6 +29,8 @@ export type TouchableScaleProps = Omit<
   onPress?: () => void;
 };
 
+let longPressCalled = false;
+
 const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
   children,
@@ -39,7 +41,6 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
   ...props
 }) => {
   // Don't call onPress when longPress already was called
-  const [longPressCalled, setLongPressCalled] = useState(false);
   const effectiveActiveScale =
     typeof activeScale !== 'undefined' ? activeScale : 0.95;
   const tapHandler = useTapGestureHandler();
@@ -70,7 +71,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
             return;
           }
           if (longPressCalled) {
-            setLongPressCalled(false);
+            longPressCalled = false;
             return;
           }
           onPress?.();
@@ -85,7 +86,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
     () =>
       longPressProp
         ? (e: GestureResponderEvent) => {
-            setLongPressCalled(true);
+            longPressCalled = true;
             longPressProp(e);
           }
         : undefined,
