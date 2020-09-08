@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
+  GestureResponderEvent,
 } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
@@ -34,8 +35,11 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
   onPress,
   disabled,
   activeScale,
+  onLongPress: longPressProp,
   ...props
 }) => {
+  // Don't call onPress when longPress already was called
+  const [longPressCalled, setLongPressCalled] = useState(false);
   const effectiveActiveScale =
     typeof activeScale !== 'undefined' ? activeScale : 0.95;
   const tapHandler = useTapGestureHandler();
@@ -61,11 +65,31 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
     () => [
       cond(
         and(eq(lastState, State.BEGAN), eq(State.END, tapHandler.state)),
-        call([], () => (disabled ? undefined : onPress?.()))
+        call([], () => {
+          if (disabled) {
+            return;
+          }
+          if (longPressCalled) {
+            setLongPressCalled(false);
+            return;
+          }
+          onPress?.();
+        })
       ),
       set(lastState, tapHandler.state),
     ],
-    [onPress, disabled]
+    [onPress, disabled, longPressCalled]
+  );
+
+  const onLongPress = useMemo(
+    () =>
+      longPressProp
+        ? (e: GestureResponderEvent) => {
+            setLongPressCalled(true);
+            longPressProp(e);
+          }
+        : undefined,
+    [longPressProp]
   );
 
   return (
@@ -77,7 +101,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
       maxDeltaX={40}
       maxDeltaY={40}
     >
-      <AnimatedTouchableWithoutFeedback {...props}>
+      <AnimatedTouchableWithoutFeedback onLongPress={onLongPress} {...props}>
         <Animated.View style={style} pointerEvents="box-only">
           {children}
         </Animated.View>
