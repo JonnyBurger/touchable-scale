@@ -4,7 +4,7 @@ import type Animated from 'react-native-reanimated';
 export type Adaptable<T> =
   | T
   | Animated.Node<T>
-  | ReadonlyArray<T | Animated.Node<T> | ReadonlyArray<T | AnimatedNode<T>>>;
+  | ReadonlyArray<T | Animated.Node<T> | ReadonlyArray<T | Animated.Node<T>>>;
 
 export type TransformStyleTypes = TransformsStyle['transform'] extends
   | readonly (infer T)[]

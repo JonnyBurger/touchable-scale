@@ -3,8 +3,6 @@ import {
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
   GestureResponderEvent,
-  StyleProp,
-  TransformsStyle,
   ViewStyle,
 } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
@@ -27,10 +25,11 @@ const AnimatedTouchableWithoutFeedback = Animated.createAnimatedComponent(
 
 export type TouchableScaleProps = Omit<
   AnimateProps<ViewStyle, TouchableWithoutFeedbackProps>,
-  'onPress'
+  'onPress' | 'onLongPress'
 > & {
   activeScale?: number;
   onPress?: () => void;
+  onLongPress?: (event: GestureResponderEvent) => void;
 };
 
 let longPressCalled = false;
