@@ -3,6 +3,9 @@ import {
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
   GestureResponderEvent,
+  StyleProp,
+  TransformsStyle,
+  ViewStyle,
 } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
@@ -16,13 +19,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import { withSpringTransition } from './withSpringTransition';
 import { useTapGestureHandler, useValue } from './useTapGestureHandler';
+import type { AnimateProps } from './animated-types';
 
 const AnimatedTouchableWithoutFeedback = Animated.createAnimatedComponent(
   TouchableWithoutFeedback
 );
 
 export type TouchableScaleProps = Omit<
-  TouchableWithoutFeedbackProps,
+  AnimateProps<ViewStyle, TouchableWithoutFeedbackProps>,
   'onPress'
 > & {
   activeScale?: number;
