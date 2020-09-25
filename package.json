@@ -33,13 +33,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/JonnyBurger/jonny-touchable-scale",
+  "repository": "https://github.com/JonnyBurger/touchable-scale",
   "author": "Jonny Burger <hi@jonny.io> (https://github.com/JonnyBurger)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JonnyBurger/jonny-touchable-scale/issues"
+    "url": "https://github.com/JonnyBurger/touchable-scale/issues"
   },
-  "homepage": "https://github.com/JonnyBurger/jonny-touchable-scale#readme",
+  "homepage": "https://github.com/JonnyBurger/touchable-scale#readme",
   "devDependencies": {
     "@commitlint/config-conventional": "^8.3.4",
     "@react-native-community/bob": "^0.16.2",
