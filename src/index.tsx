@@ -1,11 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
-  GestureResponderEvent,
   ViewStyle,
 } from 'react-native';
-import { State, TapGestureHandler } from 'react-native-gesture-handler';
+import {
+  LongPressGestureHandler,
+  LongPressGestureHandlerStateChangeEvent,
+  State,
+  TapGestureHandler,
+} from 'react-native-gesture-handler';
 import Animated, {
   and,
   call,
@@ -15,9 +19,9 @@ import Animated, {
   sub,
   useCode,
 } from 'react-native-reanimated';
-import { withSpringTransition } from './withSpringTransition';
-import { useTapGestureHandler, useValue } from './useTapGestureHandler';
 import type { AnimateProps } from './animated-types';
+import { useTapGestureHandler, useValue } from './useTapGestureHandler';
+import { withSpringTransition } from './withSpringTransition';
 
 const AnimatedTouchableWithoutFeedback = Animated.createAnimatedComponent(
   TouchableWithoutFeedback
@@ -29,10 +33,8 @@ export type TouchableScaleProps = Omit<
 > & {
   activeScale?: number;
   onPress?: () => void;
-  onLongPress?: (event: GestureResponderEvent) => void;
+  onLongPress?: () => void;
 };
-
-let longPressCalled = false;
 
 const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
@@ -73,44 +75,44 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
           if (disabled) {
             return;
           }
-          if (longPressCalled) {
-            longPressCalled = false;
-            return;
-          }
           onPress?.();
         })
       ),
       set(lastState, tapHandler.state),
     ],
-    [onPress, disabled, longPressCalled]
+    [onPress, disabled]
   );
 
-  const onLongPress = useMemo(
-    () =>
-      longPressProp
-        ? (e: GestureResponderEvent) => {
-            longPressCalled = true;
-            longPressProp(e);
-          }
-        : undefined,
+  const onHandlerStateChange = useCallback(
+    (event: LongPressGestureHandlerStateChangeEvent) => {
+      if (event.nativeEvent.state === State.ACTIVE) {
+        if (longPressProp) {
+          longPressProp();
+        }
+      }
+    },
     [longPressProp]
   );
 
   return (
-    <TapGestureHandler
-      {...tapHandler.gestureHandler}
-      // Otherwise animation stops after short time on android
-      maxDurationMs={10000000000}
-      // Otherwise gesture is accepted on iOS even if touch up outside the element
-      maxDeltaX={40}
-      maxDeltaY={40}
-    >
-      <AnimatedTouchableWithoutFeedback onLongPress={onLongPress} {...props}>
-        <Animated.View style={style} pointerEvents="box-only">
-          {children}
-        </Animated.View>
-      </AnimatedTouchableWithoutFeedback>
-    </TapGestureHandler>
+    <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
+      <Animated.View>
+        <TapGestureHandler
+          {...tapHandler.gestureHandler}
+          // Otherwise animation stops after short time on android
+          maxDurationMs={10000000000}
+          // Otherwise gesture is accepted on iOS even if touch up outside the element
+          maxDeltaX={40}
+          maxDeltaY={40}
+        >
+          <AnimatedTouchableWithoutFeedback {...props}>
+            <Animated.View style={style} pointerEvents="box-only">
+              {children}
+            </Animated.View>
+          </AnimatedTouchableWithoutFeedback>
+        </TapGestureHandler>
+      </Animated.View>
+    </LongPressGestureHandler>
   );
 };
 
