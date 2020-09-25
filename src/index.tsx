@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  StyleSheet,
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
   ViewStyle,
@@ -35,6 +36,12 @@ export type TouchableScaleProps = Omit<
   onPress?: () => void;
   onLongPress?: () => void;
 };
+
+const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
+});
 
 const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
@@ -96,7 +103,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
 
   return (
     <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
-      <Animated.View>
+      <Animated.View style={styles.flex1}>
         <TapGestureHandler
           {...tapHandler.gestureHandler}
           // Otherwise animation stops after short time on android
