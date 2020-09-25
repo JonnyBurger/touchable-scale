@@ -42,7 +42,7 @@ You can use the exported `TouchableScaleProps` type to create typed higher order
 
 ## Disadvantages over TouchableOpacity
 
-- Other touch events such as `onLongPress` and `onPressIn` don't work on Android because these events are not being propagated when the button is wrapped in Gesture Handlers. Avoid using this component when you need to listen to events other than `onPress`.
+- Only `onPress` and `onLongPress` events are supported. Other touch events such as `onPressIn` don't work on Android because these events are not being propagated when the button is wrapped in Gesture Handlers. Avoid using this component when you need to listen to events other than `onPress` or `onLongPress`.
 
 - A press is detected using Gesture Handler state instead of the Touchable Event system, this means there is no event object in the callback: `onPress={(e) => console.log(e) // undefined}`.
 
@@ -50,7 +50,7 @@ You can use the exported `TouchableScaleProps` type to create typed higher order
 
 ## See also
 
-- [react-native-scale-button](https://github.com/sa8ab/react-native-scale-button) - Button in Reanimated 2 which uses a different technique using `LongPressGestureHandler`.
+- [react-native-scale-button](https://github.com/sa8ab/react-native-scale-button) - Button written in Reanimated 2
 
 ## Credits
 
