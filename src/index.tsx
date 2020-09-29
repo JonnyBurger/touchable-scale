@@ -36,6 +36,14 @@ export type TouchableScaleProps = Omit<
   onLongPress?: () => void;
 };
 
+class Ghost extends React.Component {
+  render() {
+    return this.props.children;
+  }
+}
+
+const AnimatedFragment = Animated.createAnimatedComponent(Ghost);
+
 const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
   children,
@@ -96,7 +104,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
 
   return (
     <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
-      <Animated.View style={style}>
+      <AnimatedFragment>
         <TapGestureHandler
           {...tapHandler.gestureHandler}
           // Otherwise animation stops after short time on android
@@ -106,10 +114,12 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
           maxDeltaY={40}
         >
           <AnimatedTouchableWithoutFeedback {...props}>
-            <Animated.View pointerEvents="box-only">{children}</Animated.View>
+            <Animated.View style={style} pointerEvents="box-only">
+              {children}
+            </Animated.View>
           </AnimatedTouchableWithoutFeedback>
         </TapGestureHandler>
-      </Animated.View>
+      </AnimatedFragment>
     </LongPressGestureHandler>
   );
 };
