@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  Platform,
   TouchableWithoutFeedback,
   TouchableWithoutFeedbackProps,
   ViewStyle,
@@ -75,21 +76,24 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
 
   const lastState = useValue(State.UNDETERMINED);
 
-  useCode(
-    () => [
-      cond(
-        and(eq(lastState, State.BEGAN), eq(State.END, tapHandler.state)),
-        call([], () => {
-          if (disabled) {
-            return;
-          }
-          onPress?.();
-        })
-      ),
-      set(lastState, tapHandler.state),
-    ],
-    [onPress, disabled]
-  );
+  if (Platform.OS === 'android') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useCode(
+      () => [
+        cond(
+          and(eq(lastState, State.BEGAN), eq(State.END, tapHandler.state)),
+          call([], () => {
+            if (disabled) {
+              return;
+            }
+            onPress?.();
+          })
+        ),
+        set(lastState, tapHandler.state),
+      ],
+      [onPress, disabled]
+    );
+  }
 
   const onHandlerStateChange = useCallback(
     (event: LongPressGestureHandlerStateChangeEvent) => {
@@ -102,26 +106,48 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
     [longPressProp]
   );
 
-  return (
-    <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
-      <AnimatedFragment>
-        <TapGestureHandler
-          {...tapHandler.gestureHandler}
-          // Otherwise animation stops after short time on android
-          maxDurationMs={10000000000}
-          // Otherwise gesture is accepted on iOS even if touch up outside the element
-          maxDeltaX={40}
-          maxDeltaY={40}
+  if (Platform.OS === 'android') {
+    return (
+      <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
+        <AnimatedFragment>
+          <TapGestureHandler
+            {...tapHandler.gestureHandler}
+            // Otherwise animation stops after short time on android
+            maxDurationMs={10000000000}
+            // Otherwise gesture is accepted on iOS even if touch up outside the element
+            maxDeltaX={40}
+            maxDeltaY={40}
+          >
+            <AnimatedTouchableWithoutFeedback {...props}>
+              <Animated.View style={style} pointerEvents="box-only">
+                {children}
+              </Animated.View>
+            </AnimatedTouchableWithoutFeedback>
+          </TapGestureHandler>
+        </AnimatedFragment>
+      </LongPressGestureHandler>
+    );
+  }
+  if (Platform.OS === 'ios') {
+    return (
+      <TapGestureHandler
+        {...tapHandler.gestureHandler}
+        maxDeltaX={40}
+        maxDeltaY={40}
+      >
+        <AnimatedTouchableWithoutFeedback
+          {...props}
+          onPress={onPress}
+          onLongPress={longPressProp}
         >
-          <AnimatedTouchableWithoutFeedback {...props}>
-            <Animated.View style={style} pointerEvents="box-only">
-              {children}
-            </Animated.View>
-          </AnimatedTouchableWithoutFeedback>
-        </TapGestureHandler>
-      </AnimatedFragment>
-    </LongPressGestureHandler>
-  );
+          <Animated.View style={style} pointerEvents="box-only">
+            {children}
+          </Animated.View>
+        </AnimatedTouchableWithoutFeedback>
+      </TapGestureHandler>
+    );
+  }
+  throw new Error(`TouchableScale not supported on ${Platform.OS}`);
 };
 
 export default TouchableScale;
