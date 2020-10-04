@@ -130,7 +130,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
             {...tapHandler.gestureHandler}
             // Otherwise animation stops after short time on android
             maxDurationMs={10000000000}
-            hitSlop={40}
+            hitSlop={5}
           >
             <AnimatedTouchableWithoutFeedback {...props}>
               <Animated.View style={style} pointerEvents="box-only">
