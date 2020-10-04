@@ -1,6 +1,6 @@
 {
   "name": "@jonny/touchable-scale",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "Button that animates scale when pressed",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
