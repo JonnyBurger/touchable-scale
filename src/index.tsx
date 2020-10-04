@@ -114,9 +114,6 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
             {...tapHandler.gestureHandler}
             // Otherwise animation stops after short time on android
             maxDurationMs={10000000000}
-            // Otherwise gesture is accepted on iOS even if touch up outside the element
-            maxDeltaX={40}
-            maxDeltaY={40}
           >
             <AnimatedTouchableWithoutFeedback {...props}>
               <Animated.View style={style} pointerEvents="box-only">
