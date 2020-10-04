@@ -16,6 +16,7 @@ import Animated, {
   call,
   cond,
   eq,
+  or,
   set,
   sub,
   useCode,
@@ -58,9 +59,19 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
   const effectiveActiveScale =
     typeof activeScale !== 'undefined' ? activeScale : 0.95;
   const tapHandler = useTapGestureHandler();
+  const lastState = useValue(State.UNDETERMINED);
   const scaleFactor = useMemo(
-    () => cond(eq(tapHandler.state, State.BEGAN), 1 - effectiveActiveScale, 0),
-    [tapHandler.state, effectiveActiveScale]
+    () =>
+      cond(
+        or(
+          eq(tapHandler.state, State.BEGAN),
+          eq(tapHandler.state, State.ACTIVE),
+          and(eq(tapHandler.state, State.FAILED), eq(lastState, State.BEGAN))
+        ),
+        1 - effectiveActiveScale,
+        0
+      ),
+    [tapHandler.state, lastState, effectiveActiveScale]
   );
 
   const style = useMemo(() => {
@@ -74,14 +85,19 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
     ];
   }, [disabled, propStyle, scaleFactor]);
 
-  const lastState = useValue(State.UNDETERMINED);
-
   if (Platform.OS === 'android') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useCode(
       () => [
         cond(
-          and(eq(lastState, State.BEGAN), eq(State.END, tapHandler.state)),
+          and(
+            or(
+              eq(lastState, State.ACTIVE),
+              eq(lastState, State.BEGAN),
+              eq(lastState, State.FAILED)
+            ),
+            eq(State.END, tapHandler.state)
+          ),
           call([], () => {
             if (disabled) {
               return;
