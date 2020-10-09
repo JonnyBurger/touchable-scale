@@ -38,14 +38,6 @@ export type TouchableScaleProps = Omit<
   onLongPress?: () => void;
 };
 
-class Ghost extends React.Component {
-  render() {
-    return this.props.children;
-  }
-}
-
-const AnimatedFragment = Animated.createAnimatedComponent(Ghost);
-
 const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
   children,
@@ -123,23 +115,39 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
   );
 
   if (Platform.OS === 'android') {
+    if (longPressProp) {
+      return (
+        <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
+          <Animated.View>
+            <TapGestureHandler
+              {...tapHandler.gestureHandler}
+              // Otherwise animation stops after short time on android
+              maxDurationMs={10000000000}
+              hitSlop={5}
+            >
+              <AnimatedTouchableWithoutFeedback {...props}>
+                <Animated.View style={style} pointerEvents="box-only">
+                  {children}
+                </Animated.View>
+              </AnimatedTouchableWithoutFeedback>
+            </TapGestureHandler>
+          </Animated.View>
+        </LongPressGestureHandler>
+      );
+    }
     return (
-      <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
-        <AnimatedFragment>
-          <TapGestureHandler
-            {...tapHandler.gestureHandler}
-            // Otherwise animation stops after short time on android
-            maxDurationMs={10000000000}
-            hitSlop={5}
-          >
-            <AnimatedTouchableWithoutFeedback {...props}>
-              <Animated.View style={style} pointerEvents="box-only">
-                {children}
-              </Animated.View>
-            </AnimatedTouchableWithoutFeedback>
-          </TapGestureHandler>
-        </AnimatedFragment>
-      </LongPressGestureHandler>
+      <TapGestureHandler
+        {...tapHandler.gestureHandler}
+        // Otherwise animation stops after short time on android
+        maxDurationMs={10000000000}
+        hitSlop={5}
+      >
+        <AnimatedTouchableWithoutFeedback {...props}>
+          <Animated.View style={style} pointerEvents="box-only">
+            {children}
+          </Animated.View>
+        </AnimatedTouchableWithoutFeedback>
+      </TapGestureHandler>
     );
   }
   if (Platform.OS === 'ios') {
