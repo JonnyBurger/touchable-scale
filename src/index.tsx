@@ -146,7 +146,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
         maxDelayMs={0}
         numberOfTaps={1}
       >
-        <AnimatedTouchableWithoutFeedback {...props}>
+        <AnimatedTouchableWithoutFeedback {...props} disabled={disabled}>
           <Animated.View style={style} pointerEvents="box-only">
             {children}
           </Animated.View>
@@ -163,6 +163,7 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
       >
         <AnimatedTouchableWithoutFeedback
           {...props}
+          disabled={disabled}
           onPress={onPress}
           onLongPress={longPressProp}
         >
