@@ -158,3 +158,5 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
 };
 
 export default TouchableScale;
+
+export { TouchableScaleProps } from './props';
