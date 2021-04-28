@@ -1,28 +1,22 @@
-import {
-  TouchableWithoutFeedback,
-  TouchableWithoutFeedbackProps,
-  View,
-  StyleSheet,
-} from 'react-native';
+import { TouchableWithoutFeedback, View, StyleSheet } from 'react-native';
 import React, { useState, useCallback, useMemo } from 'react';
-
-export type TouchableScaleProps = Omit<
-  TouchableWithoutFeedbackProps,
-  'onPress'
-> & {
-  activeScale?: number;
-  onPress?: () => void;
-};
+import type { TouchableScaleProps } from './props';
+import { DEFAULT_ACTIVE_SCALE, DEFAULT_DURATION } from './config';
 
 const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
   disabled,
   children,
   activeScale,
+  transitionDuration,
   ...props
 }) => {
   const effectiveActiveScale =
-    typeof activeScale !== 'undefined' ? activeScale : 0.95;
+    typeof activeScale !== 'undefined' ? activeScale : DEFAULT_ACTIVE_SCALE;
+  const effectiveDuration =
+    typeof transitionDuration !== 'undefined'
+      ? transitionDuration
+      : DEFAULT_DURATION;
   const [pressed, setPressed] = useState(false);
   const onPressIn = useCallback(() => {
     setPressed(true);
@@ -32,14 +26,17 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
   }, []);
   const style = useMemo(() => {
     return StyleSheet.compose(
-      propStyle,
+      StyleSheet.compose(propStyle, {
+        // @ts-expect-error
+        transition: `transform ${(effectiveDuration / 1000).toFixed(2)}s`,
+      }),
       disabled
         ? {}
         : {
             transform: [{ scale: pressed ? effectiveActiveScale : 1 }],
           }
     );
-  }, [disabled, effectiveActiveScale, pressed, propStyle]);
+  }, [disabled, effectiveActiveScale, effectiveDuration, pressed, propStyle]);
   return (
     <TouchableWithoutFeedback
       onPressIn={onPressIn}

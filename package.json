@@ -20,7 +20,7 @@
     "!**/__mocks__"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "npm run typescript && jest",
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
@@ -60,12 +60,13 @@
     "react": "16.11.0",
     "react-native": "0.62.2",
     "release-it": "^13.5.8",
+    "ts-unused-exports": "^7.0.3",
     "typescript": "^3.8.3"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
-    "react-native-reanimated": "*",
+    "react-native-reanimated": ">=2",
     "react-native-gesture-handler": "*"
   },
   "jest": {

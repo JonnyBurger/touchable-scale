@@ -1,42 +1,25 @@
-import React, { useCallback, useMemo } from 'react';
-import {
-  Platform,
-  TouchableWithoutFeedback,
-  TouchableWithoutFeedbackProps,
-  ViewStyle,
-} from 'react-native';
+import React, { useCallback } from 'react';
+import { Platform, TouchableWithoutFeedback } from 'react-native';
 import {
   LongPressGestureHandler,
   LongPressGestureHandlerStateChangeEvent,
   State,
   TapGestureHandler,
+  TapGestureHandlerGestureEvent,
 } from 'react-native-gesture-handler';
 import Animated, {
-  and,
-  call,
-  cond,
-  eq,
-  or,
-  set,
-  sub,
-  useCode,
+  runOnJS,
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
-import type { AnimateProps } from './animated-types';
-import { useTapGestureHandler, useValue } from './useTapGestureHandler';
-import { withSpringTransition } from './withSpringTransition';
+import type { TouchableScaleProps } from './props';
+import { DEFAULT_ACTIVE_SCALE, DEFAULT_DURATION } from './config';
 
 const AnimatedTouchableWithoutFeedback = Animated.createAnimatedComponent(
   TouchableWithoutFeedback
 );
-
-export type TouchableScaleProps = Omit<
-  AnimateProps<ViewStyle, TouchableWithoutFeedbackProps>,
-  'onPress' | 'onLongPress'
-> & {
-  activeScale?: number;
-  onPress?: () => void;
-  onLongPress?: () => void;
-};
 
 const TouchableScale: React.FC<TouchableScaleProps> = ({
   style: propStyle,
@@ -44,64 +27,57 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
   onPress,
   disabled,
   activeScale,
+  transitionDuration,
   onLongPress: longPressProp,
   ...props
 }) => {
+  const scale = useSharedValue(1);
+  const effectiveDuration =
+    typeof transitionDuration !== 'undefined'
+      ? transitionDuration
+      : DEFAULT_DURATION;
+
+  const canReleaseToTriggerPress = useSharedValue(false);
   // Don't call onPress when longPress already was called
   const effectiveActiveScale =
-    typeof activeScale !== 'undefined' ? activeScale : 0.95;
-  const tapHandler = useTapGestureHandler();
-  const lastState = useValue(State.UNDETERMINED);
-  const scaleFactor = useMemo(
-    () =>
-      cond(
-        or(
-          eq(tapHandler.state, State.BEGAN),
-          eq(tapHandler.state, State.ACTIVE),
-          and(eq(tapHandler.state, State.FAILED), eq(lastState, State.BEGAN))
-        ),
-        1 - effectiveActiveScale,
-        0
-      ),
-    [tapHandler.state, lastState, effectiveActiveScale]
-  );
+    typeof activeScale !== 'undefined' ? activeScale : DEFAULT_ACTIVE_SCALE;
+  const tapHandler = useAnimatedGestureHandler<TapGestureHandlerGestureEvent>({
+    onCancel: () => {
+      scale.value = withTiming(1, { duration: effectiveDuration });
+      canReleaseToTriggerPress.value = false;
+    },
+    onEnd: () => {
+      scale.value = withTiming(1, { duration: effectiveDuration });
+      if (!canReleaseToTriggerPress.value) {
+        return;
+      }
+      canReleaseToTriggerPress.value = false;
+      if (disabled || !onPress) {
+        return;
+      }
+      runOnJS(onPress)?.();
+    },
+    onFail: () => {
+      scale.value = withTiming(1, { duration: effectiveDuration });
+      canReleaseToTriggerPress.value = false;
+    },
+    onFinish: () => {
+      scale.value = withTiming(1, { duration: effectiveDuration });
+      canReleaseToTriggerPress.value = false;
+    },
+    onStart: () => {
+      canReleaseToTriggerPress.value = true;
+      scale.value = withTiming(effectiveActiveScale, {
+        duration: effectiveDuration,
+      });
+    },
+  });
 
-  const style = useMemo(() => {
-    return [
-      propStyle,
-      disabled
-        ? {}
-        : {
-            transform: [{ scale: sub(1, withSpringTransition(scaleFactor)) }],
-          },
-    ];
-  }, [disabled, propStyle, scaleFactor]);
-
-  if (Platform.OS === 'android') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useCode(
-      () => [
-        cond(
-          and(
-            or(
-              eq(lastState, State.ACTIVE),
-              eq(lastState, State.BEGAN),
-              eq(lastState, State.FAILED)
-            ),
-            eq(State.END, tapHandler.state)
-          ),
-          call([], () => {
-            if (disabled) {
-              return;
-            }
-            onPress?.();
-          })
-        ),
-        set(lastState, tapHandler.state),
-      ],
-      [onPress, disabled]
-    );
-  }
+  const style = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: disabled ? 1 : scale.value }],
+    };
+  }, [disabled]);
 
   const onHandlerStateChange = useCallback(
     (event: LongPressGestureHandlerStateChangeEvent) => {
@@ -120,15 +96,15 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
         <LongPressGestureHandler onHandlerStateChange={onHandlerStateChange}>
           <Animated.View>
             <TapGestureHandler
-              {...tapHandler.gestureHandler}
+              onGestureEvent={tapHandler}
               // Otherwise animation stops after short time on android
               maxDurationMs={10000000000}
               hitSlop={5}
               maxDelayMs={0}
               numberOfTaps={1}
             >
-              <AnimatedTouchableWithoutFeedback {...props}>
-                <Animated.View style={style} pointerEvents="box-only">
+              <AnimatedTouchableWithoutFeedback {...props} style={style}>
+                <Animated.View style={propStyle} pointerEvents="box-only">
                   {children}
                 </Animated.View>
               </AnimatedTouchableWithoutFeedback>
@@ -139,15 +115,19 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
     }
     return (
       <TapGestureHandler
-        {...tapHandler.gestureHandler}
+        onGestureEvent={tapHandler}
         // Otherwise animation stops after short time on android
         maxDurationMs={10000000000}
         hitSlop={5}
         maxDelayMs={0}
         numberOfTaps={1}
       >
-        <AnimatedTouchableWithoutFeedback {...props} disabled={disabled}>
-          <Animated.View style={style} pointerEvents="box-only">
+        <AnimatedTouchableWithoutFeedback
+          {...props}
+          disabled={disabled}
+          style={style}
+        >
+          <Animated.View style={propStyle} pointerEvents="box-only">
             {children}
           </Animated.View>
         </AnimatedTouchableWithoutFeedback>
@@ -157,17 +137,17 @@ const TouchableScale: React.FC<TouchableScaleProps> = ({
   if (Platform.OS === 'ios') {
     return (
       <TapGestureHandler
-        {...tapHandler.gestureHandler}
+        onGestureEvent={tapHandler}
         maxDeltaX={40}
         maxDeltaY={40}
       >
         <AnimatedTouchableWithoutFeedback
           {...props}
           disabled={disabled}
-          onPress={onPress}
+          style={style}
           onLongPress={longPressProp}
         >
-          <Animated.View style={style} pointerEvents="box-only">
+          <Animated.View style={propStyle} pointerEvents="box-only">
             {children}
           </Animated.View>
         </AnimatedTouchableWithoutFeedback>

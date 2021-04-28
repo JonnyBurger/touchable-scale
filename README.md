@@ -12,7 +12,9 @@ React Native Button that animates it's scale when pressed.
 npm install @jonny/touchable-scale
 ```
 
-Also requires [Reanimated](https://github.com/software-mansion/react-native-reanimated) and [Gesture Handler](https://github.com/software-mansion/react-native-gesture-handler).
+Also requires [Reanimated 2](https://github.com/software-mansion/react-native-reanimated) and [Gesture Handler](https://github.com/software-mansion/react-native-gesture-handler).
+
+> Since Version 1.0.0, only Reanimated 2 is supported. If you are still using Reanimated 1, install the latest version of the 0.x release line.
 
 ## Usage
 
@@ -30,6 +32,8 @@ export const MyComponent: React.FC = () => {
 `<TouchableScale/>` follows the same API as `<TouchableOpacity/>` and should be more or less a drop-in replacement without any changes.
 
 The prop `activeScale` controls the scale while the button is pressed. The default is `0.95`.
+
+The prop `transitionDuration` controls the duration of the transition when the button is pressed in miliseconds. The default is 60.
 
 There are no event objects in the `onPress` callback. See below in the disadvantages section.
 
