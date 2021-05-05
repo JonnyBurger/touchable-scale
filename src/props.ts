@@ -1,4 +1,8 @@
-import type { TouchableWithoutFeedbackProps, ViewStyle } from 'react-native';
+import type {
+  TouchableWithoutFeedbackProps,
+  ViewStyle,
+  StyleProp,
+} from 'react-native';
 
 export type TouchableScaleProps = Omit<
   TouchableWithoutFeedbackProps,
@@ -10,5 +14,5 @@ export type TouchableScaleProps = Omit<
   transitionDuration?: number;
   onPress?: () => void;
   onLongPress?: () => void;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 };
